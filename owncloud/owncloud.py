@@ -1010,7 +1010,7 @@ class Client(object):
 
     # User Management
 
-    def create_user(self, user_name, email, initial_password):
+    def create_user(self, user_name, email, initial_password, quota):
         """Create a new user with an initial password via provisioning API.
         It is not an error, if the user already existed before.
         If you get back an error 999, then the provisioning API is not enabled.
@@ -1030,10 +1030,13 @@ class Client(object):
                 'userid': user_name,
                 'email': email,
                 'password': initial_password
-                # 'groups': groups,
-                # 'quota': quota
+                'quota': quota,
+                # 'groups': groups
             }
         )
+
+        import sys
+        print(str(res), file=sys.stderr)
 
         if res.status_code == 200:
             tree = ET.fromstring(res.content)
