@@ -1452,6 +1452,8 @@ class Client(object):
         if res.status_code != 102:
             return False, res.status_code
 
+        raise HTTPResponseError(res)
+
     def delete_group(self, group_name):
         """Delete a group via provisioning API.
         If you get back an error 999, then the provisioning API is not enabled.
