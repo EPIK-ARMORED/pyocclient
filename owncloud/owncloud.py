@@ -1010,7 +1010,7 @@ class Client(object):
 
     # User Management
 
-    def create_user(self, user_name, initial_password, email, quota, groups):
+    def create_user(self, user_name, email, initial_password, groups, quota):
         """Create a new user with an initial password via provisioning API.
         It is not an error, if the user already existed before.
         If you get back an error 999, then the provisioning API is not enabled.
@@ -1030,44 +1030,10 @@ class Client(object):
                 'userid': user_name,
                 'email': email,
                 'password': initial_password,
-                'quota': quota,
-                'groups': groups
+                'groups': groups,
+                'quota': quota
             }
         )
-
-        # We get 200 when the user was just created.
-        if res.status_code == 200:
-            tree = ET.fromstring(res.content)
-            self._check_ocs_status(tree, [100])
-            return True
-
-        # Invalid input data
-        if res.status_code == 101:
-            pass
-
-        # Username already exists
-        if res.status_code == 102:
-            pass
-
-        # Unknown error ocurred
-        if res.status_code == 103:
-            pass
-
-        # Group does not exist
-        if res.status_code == 104:
-            pass
-
-        # Insufficient privileges for group
-        if res.status_code == 105:
-            pass
-
-        # password and email empty. Must set password or an email
-        if res.status_code == 108:
-            pass
-
-        # Invitation email cannot be send
-        if res.status_code == 103:
-            pass
 
         raise HTTPResponseError(res)
 
