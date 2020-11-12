@@ -1449,7 +1449,7 @@ class Client(object):
             self._check_ocs_status(tree, [100])
             return True
 
-        if res.status_code != 102:
+        if res.status_code != 200:
             return False, res.status_code
 
         raise HTTPResponseError(res)
