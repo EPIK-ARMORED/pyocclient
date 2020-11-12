@@ -1008,7 +1008,9 @@ class Client(object):
             return shares
         raise HTTPResponseError(res)
 
-    def create_user(self, user_name, initial_password, quota):
+    # User Management
+
+    def create_user(self, user_name, initial_password, email, quota, groups):
         """Create a new user with an initial password via provisioning API.
         It is not an error, if the user already existed before.
         If you get back an error 999, then the provisioning API is not enabled.
@@ -1024,14 +1026,48 @@ class Client(object):
             'POST',
             self.OCS_SERVICE_CLOUD,
             'users',
-            data={'password': initial_password, 'userid': user_name, 'quota': quota}
+            data={
+                'userid': user_name,
+                'email': email,
+                'password': initial_password,
+                'quota': quota,
+                'groups': groups
+            }
         )
 
         # We get 200 when the user was just created.
         if res.status_code == 200:
             tree = ET.fromstring(res.content)
-            self._check_ocs_status(tree, [100])
+            self._check_ocs_stat    us(tree, [100])
             return True
+
+        # Invalid input data
+        if res.status_code == 101:
+            pass
+
+        # Username already exists
+        if res.status_code == 102:
+            pass
+
+        # Unknown error ocurred
+        if res.status_code == 103:
+            pass
+
+        # Group does not exist
+        if res.status_code == 104:
+            pass
+
+        # Insufficient privileges for group
+        if res.status_code == 105:
+            pass
+
+        # password and email empty. Must set password or an email
+        if res.status_code == 108:
+            pass
+
+        # Invitation email cannot be send
+        if res.status_code == 103:
+            pass
 
         raise HTTPResponseError(res)
 
@@ -1056,27 +1092,6 @@ class Client(object):
 
         raise HTTPResponseError(res)
 
-    def disable_user(self, user_name):
-        """Disables a user via provisioning API.
-        If you get back an error 999, then the provisioning API is not enabled.
-
-        :param user_name:  name of user to be disabled
-        :returns: True on success
-        :raises: HTTPResponseError in case an HTTP error status was returned
-
-        """
-        res = self._make_ocs_request(
-            'PUT',
-            self.OCS_SERVICE_CLOUD,
-            'users/' + user_name + '/disable'
-        )
-
-        # We get 200 when the user was disabled.
-        if res.status_code == 200:
-            return True
-
-        raise HTTPResponseError(res)
-
     def enable_user(self, user_name):
         """Enables a user via provisioning API.
         If you get back an error 999, then the provisioning API is not enabled.
@@ -1090,6 +1105,27 @@ class Client(object):
             'PUT',
             self.OCS_SERVICE_CLOUD,
             'users/' + user_name + '/enable'
+        )
+
+        # We get 200 when the user was disabled.
+        if res.status_code == 200:
+            return True
+
+        raise HTTPResponseError(res)
+
+    def disable_user(self, user_name):
+        """Disables a user via provisioning API.
+        If you get back an error 999, then the provisioning API is not enabled.
+
+        :param user_name:  name of user to be disabled
+        :returns: True on success
+        :raises: HTTPResponseError in case an HTTP error status was returned
+
+        """
+        res = self._make_ocs_request(
+            'PUT',
+            self.OCS_SERVICE_CLOUD,
+            'users/' + user_name + '/disable'
         )
 
         # We get 200 when the user was disabled.
@@ -1146,6 +1182,32 @@ class Client(object):
 
         """
         return self.search_users('')
+
+    def get_user(self, user_name):
+        """Retrieves information about a user
+
+        :param user_name:  name of user to query
+
+        :returns: Dictionary of information about user
+        :raises: ResponseError in case an HTTP error status was returned
+        """
+        res = self._make_ocs_request(
+            'GET',
+            self.OCS_SERVICE_CLOUD,
+            'users/' + parse.quote(user_name),
+            data={}
+        )
+
+        tree = ET.fromstring(res.content)
+        self._check_ocs_status(tree)
+        # <ocs><meta><statuscode>100</statuscode><status>ok</status></meta>
+        # <data>
+        # <email>frank@example.org</email><quota>0</quota><enabled>true</enabled>
+        # </data>
+        # </ocs>
+
+        data_element = tree.find('data')
+        return self._xml_to_dict(data_element)
 
     def set_user_attribute(self, user_name, key, value):
         """Sets a user attribute
@@ -1226,32 +1288,6 @@ class Client(object):
         :raises: HTTPResponseError in case an HTTP error status was returned
         """
         return group_name in self.get_user_groups(user_name)
-
-    def get_user(self, user_name):
-        """Retrieves information about a user
-
-        :param user_name:  name of user to query
-
-        :returns: Dictionary of information about user
-        :raises: ResponseError in case an HTTP error status was returned
-        """
-        res = self._make_ocs_request(
-            'GET',
-            self.OCS_SERVICE_CLOUD,
-            'users/' + parse.quote(user_name),
-            data={}
-        )
-
-        tree = ET.fromstring(res.content)
-        self._check_ocs_status(tree)
-        # <ocs><meta><statuscode>100</statuscode><status>ok</status></meta>
-        # <data>
-        # <email>frank@example.org</email><quota>0</quota><enabled>true</enabled>
-        # </data>
-        # </ocs>
-
-        data_element = tree.find('data')
-        return self._xml_to_dict(data_element)
 
     def remove_user_from_group(self, user_name, group_name):
         """Removes a user from a group.
@@ -1389,6 +1425,8 @@ class Client(object):
             )
         raise HTTPResponseError(res)
 
+    # Group Management
+
     def create_group(self, group_name):
         """Create a new group via provisioning API.
         If you get back an error 999, then the provisioning API is not enabled.
@@ -1410,6 +1448,9 @@ class Client(object):
             tree = ET.fromstring(res.content)
             self._check_ocs_status(tree, [100])
             return True
+
+        if res.status_code != 102:
+            return False, res.status_code
 
         raise HTTPResponseError(res)
 
@@ -1442,10 +1483,11 @@ class Client(object):
         :raises: HTTPResponseError in case an HTTP error status was returned
 
         """
+        action_path = 'groups'
         res = self._make_ocs_request(
             'GET',
             self.OCS_SERVICE_CLOUD,
-            'groups'
+            action_path
         )
 
         if res.status_code == 200:
