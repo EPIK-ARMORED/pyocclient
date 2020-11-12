@@ -1449,8 +1449,7 @@ class Client(object):
             self._check_ocs_status(tree, [100])
             return True
 
-        if res.status_code != 200:
-            return False, res.status_code
+        raise HTTPResponseError(res)
 
     def delete_group(self, group_name):
         """Delete a group via provisioning API.
