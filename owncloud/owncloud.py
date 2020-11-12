@@ -1029,8 +1029,8 @@ class Client(object):
             data={
                 'userid': user_name,
                 'email': email,
-                'password': initial_password
-                'quota': quota,
+                'password': initial_password,
+                'quota': quota
                 # 'groups': groups
             }
         )
