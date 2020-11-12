@@ -1008,13 +1008,14 @@ class Client(object):
             return shares
         raise HTTPResponseError(res)
 
-    def create_user(self, user_name, initial_password):
+    def create_user(self, user_name, initial_password, quota):
         """Create a new user with an initial password via provisioning API.
         It is not an error, if the user already existed before.
         If you get back an error 999, then the provisioning API is not enabled.
 
         :param user_name:  name of user to be created
         :param initial_password:  password for user being created
+        :param quota:  amount, in gb of storage
         :returns: True on success
         :raises: HTTPResponseError in case an HTTP error status was returned
 
@@ -1023,7 +1024,7 @@ class Client(object):
             'POST',
             self.OCS_SERVICE_CLOUD,
             'users',
-            data={'password': initial_password, 'userid': user_name}
+            data={'password': initial_password, 'userid': user_name, 'quota': quota}
         )
 
         # We get 200 when the user was just created.
@@ -1050,6 +1051,48 @@ class Client(object):
         )
 
         # We get 200 when the user was deleted.
+        if res.status_code == 200:
+            return True
+
+        raise HTTPResponseError(res)
+
+    def disable_user(self, user_name):
+        """Disables a user via provisioning API.
+        If you get back an error 999, then the provisioning API is not enabled.
+
+        :param user_name:  name of user to be disabled
+        :returns: True on success
+        :raises: HTTPResponseError in case an HTTP error status was returned
+
+        """
+        res = self._make_ocs_request(
+            'PUT',
+            self.OCS_SERVICE_CLOUD,
+            'users/' + user_name + '/disable'
+        )
+
+        # We get 200 when the user was disabled.
+        if res.status_code == 200:
+            return True
+
+        raise HTTPResponseError(res)
+
+    def enable_user(self, user_name):
+        """Enables a user via provisioning API.
+        If you get back an error 999, then the provisioning API is not enabled.
+
+        :param user_name:  name of user to be enabled
+        :returns: True on success
+        :raises: HTTPResponseError in case an HTTP error status was returned
+
+        """
+        res = self._make_ocs_request(
+            'PUT',
+            self.OCS_SERVICE_CLOUD,
+            'users/' + user_name + '/enable'
+        )
+
+        # We get 200 when the user was disabled.
         if res.status_code == 200:
             return True
 
