@@ -1010,7 +1010,7 @@ class Client(object):
 
     # User Management
 
-    def create_user(self, user_name, email, initial_password, groups, quota):
+    def create_user(self, user_name, email, initial_password):
         """Create a new user with an initial password via provisioning API.
         It is not an error, if the user already existed before.
         If you get back an error 999, then the provisioning API is not enabled.
@@ -1029,9 +1029,9 @@ class Client(object):
             data={
                 'userid': user_name,
                 'email': email,
-                'password': initial_password,
-                'groups': groups,
-                'quota': quota
+                'password': initial_password
+                # 'groups': groups,
+                # 'quota': quota
             }
         )
 
