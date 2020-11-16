@@ -1165,20 +1165,19 @@ class Client(object):
         res = self._make_ocs_request(
             'GET',
             self.OCS_SERVICE_CLOUD,
-            'users/' + parse.quote(user_name),
+            'users/' + parse.quote(user_name) + '?format=json',
             data={}
         )
 
-        tree = ET.fromstring(res.content)
-        self._check_ocs_status(tree)
+        # tree = ET.fromstring(res.content)
+        # self._check_ocs_status(tree)
         # <ocs><meta><statuscode>100</statuscode><status>ok</status></meta>
         # <data>
         # <email>frank@example.org</email><quota>0</quota><enabled>true</enabled>
         # </data>
         # </ocs>
 
-        data_element = tree.find('data')
-        return self._xml_to_dict(data_element)
+        return res.json()
 
     def set_user_attribute(self, user_name, key, value):
         """Sets a user attribute
