@@ -1104,6 +1104,7 @@ class Client(object):
 
         # We get 200 when the user was disabled.
         if res.status_code == 200:
+            print(res.text, file=sys.stderr)
             return True
 
         raise HTTPResponseError(res)
