@@ -1099,7 +1099,7 @@ class Client(object):
         res = self._make_ocs_request(
             'PUT',
             self.OCS_SERVICE_CLOUD,
-            'users/' + user_name + '/disable'
+            'users/' + user_name + '/disable?format=json'
         )
 
         # We get 200 when the user was disabled.
@@ -1839,7 +1839,7 @@ class Client(object):
 
         if self._debug:
             print('OCS request: %s %s %s' % (method, self.url + path,
-                                             attributes))
+                                             attributes), file=sys.stderr)
 
         res = self._session.request(method, self.url + path, **attributes)
         return res
