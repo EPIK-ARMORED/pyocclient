@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 import os
 import math
 import six
+import sys
 from six.moves.urllib import parse
 
 
