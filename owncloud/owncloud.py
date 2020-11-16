@@ -1040,7 +1040,7 @@ class Client(object):
 
         raise HTTPResponseError(res)
 
-    def edit_user(self, user_name, email=None, password=None, quota=None):
+    def update_user(self, user_name, email=None, password=None, quota=None):
         '''Edit a user's email, password or quota.
         Returns the json dictionary with the OCC API Response
         '''
@@ -1070,7 +1070,11 @@ class Client(object):
             'PUT',
             self.OCS_SERVICE_CLOUD,
             'users/' + user_name + '?format=json',
-            data = payload
+            data = {
+                "email": email,
+                "password": password,
+                "quota": quota
+            }
         )
 
         if res.status_code == 200:
