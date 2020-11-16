@@ -1035,13 +1035,8 @@ class Client(object):
             }
         )
 
-        import sys
-
         if res.status_code == 200:
-            print(res.text)
-            #tree = ET.fromstring(res.content)
-            #self._check_ocs_status(tree, [100])
-            return True
+            return res.json()
 
         raise HTTPResponseError(res)
 
