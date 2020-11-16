@@ -1040,6 +1040,42 @@ class Client(object):
 
         raise HTTPResponseError(res)
 
+    def edit_user(self, user_name, email=None, password=None, quota=None):
+        '''Edit a user's email, password or quota.
+        Returns the json dictionary with the OCC API Response
+        '''
+        if email and password and quota:
+            payload = {
+                "email": email,
+                "password": password,
+                "quota": quota
+            }
+        elif email and password and not quota:
+            payload = {
+                "email": email,
+                "password": password
+            }
+        elif email and quota and not password:
+            payload = {
+                "email": email,
+                "quota": quota
+            }
+        elif quota and password and not email:
+            payload = {
+                "password": password,
+                "quota": quota
+            }
+
+        res = self._make_ocs_request(
+            'PUT',
+            self.OCS_SERVICE_CLOUD,
+            'users/' + user_name + '?format=json',
+            data = payload
+        )
+
+        if res.status_code == 200:
+            return res.json()
+
     def delete_user(self, user_name):
         """Deletes a user via provisioning API.
         If you get back an error 999, then the provisioning API is not enabled.
@@ -1097,7 +1133,6 @@ class Client(object):
             'users/' + user_name + '/disable?format=json'
         )
 
-        # We get 200 when the user was disabled.
         if res.status_code == 200:
             return res.json()
 
