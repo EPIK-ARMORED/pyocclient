@@ -1039,8 +1039,8 @@ class Client(object):
 
         if res.status_code == 200:
             print(res.text)
-            tree = ET.fromstring(res.content)
-            self._check_ocs_status(tree, [100])
+            #tree = ET.fromstring(res.content)
+            #self._check_ocs_status(tree, [100])
             return True
 
         raise HTTPResponseError(res)
