@@ -1031,7 +1031,6 @@ class Client(object):
                 'email': email,
                 'password': initial_password,
                 'quota': quota
-                # 'groups': groups
             }
         )
 
