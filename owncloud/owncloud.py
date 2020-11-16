@@ -1026,7 +1026,7 @@ class Client(object):
         res = self._make_ocs_request(
             'POST',
             self.OCS_SERVICE_CLOUD,
-            'users',
+            'users?format=json',
             data={
                 'userid': user_name,
                 'email': email,
@@ -1036,9 +1036,9 @@ class Client(object):
         )
 
         import sys
-        print(str(res), file=sys.stderr)
 
         if res.status_code == 200:
+            print(res.text)
             tree = ET.fromstring(res.content)
             self._check_ocs_status(tree, [100])
             return True
@@ -1078,12 +1078,13 @@ class Client(object):
         res = self._make_ocs_request(
             'PUT',
             self.OCS_SERVICE_CLOUD,
-            'users/' + user_name + '/enable'
+            'users/' + user_name + '/enable?format=json'
         )
 
         # We get 200 when the user was disabled.
         if res.status_code == 200:
-            return True
+            occ_statuscode = res.json()['ocs']['meta']['statuscode']
+            return occ_statuscode
 
         raise HTTPResponseError(res)
 
@@ -1104,8 +1105,8 @@ class Client(object):
 
         # We get 200 when the user was disabled.
         if res.status_code == 200:
-            print(res.text, file=sys.stderr)
-            return True
+            occ_statuscode = res.json()['ocs']['meta']['statuscode']
+            return occ_statuscode
 
         raise HTTPResponseError(res)
 
