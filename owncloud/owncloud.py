@@ -1223,6 +1223,8 @@ class Client(object):
             data={'groupid': group_name}
         )
 
+        print(str(res), file=sys.stderr)
+
         if res.status_code == 200:
             tree = ET.fromstring(res.content)
             self._check_ocs_status(tree, [100])
