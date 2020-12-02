@@ -1111,7 +1111,7 @@ class Client(object):
 
         # We get 200 when the user was deleted.
         if res.status_code == 200:
-            return res.json()
+            return res.text
 
         raise HTTPResponseError(res)
 
