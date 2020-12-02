@@ -1106,12 +1106,12 @@ class Client(object):
         res = self._make_ocs_request(
             'DELETE',
             self.OCS_SERVICE_CLOUD,
-            'users/' + user_name
+            'users/' + user_name + '?format=json'
         )
 
         # We get 200 when the user was deleted.
         if res.status_code == 200:
-            return res.text
+            return res.json()
 
         raise HTTPResponseError(res)
 
