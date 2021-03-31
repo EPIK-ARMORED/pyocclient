@@ -1058,7 +1058,7 @@ class Client(object):
             'users?format=json',
             data={
                 'userid': user_name,
-                'email': email
+                'email': email,
                 'quota': quota
             }
         )
