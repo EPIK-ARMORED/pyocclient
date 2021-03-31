@@ -1040,6 +1040,34 @@ class Client(object):
 
         raise HTTPResponseError(res)
 
+    def create_user2(self, user_name, email, quota):
+        """Create a new user with an initial password via provisioning API.
+        It is not an error, if the user already existed before.
+        If you get back an error 999, then the provisioning API is not enabled.
+
+        :param user_name:  name of user to be created
+        :param initial_password:  password for user being created
+        :param quota:  amount, in gb of storage
+        :returns: True on success
+        :raises: HTTPResponseError in case an HTTP error status was returned
+
+        """
+        res = self._make_ocs_request(
+            'POST',
+            self.OCS_SERVICE_CLOUD,
+            'users?format=json',
+            data={
+                'userid': user_name,
+                'email': email
+                'quota': quota
+            }
+        )
+
+        if res.status_code == 200:
+            return res.json()
+
+        raise HTTPResponseError(res)
+
     # Needs to be looked into later
     # def update_user(self, user_name, email=None, password=None, quota=None):
     #     '''Edit a user's email, password or quota.
